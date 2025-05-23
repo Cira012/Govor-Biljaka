@@ -384,7 +384,19 @@ const plantLocations = {
 
 // Helper function to get plant locations
 const getPlantLocations = (plantId) => {
-  return plantLocations[plantId] || [];
+  // First check if the plant has specific locations in plantLocations
+  if (plantLocations[plantId]) {
+    return plantLocations[plantId];
+  }
+  
+  // If not, try to get the plant data and return its locations if they exist
+  const plant = getPlantById(plantId);
+  if (plant && plant.locations) {
+    return Array.isArray(plant.locations) ? plant.locations : [];
+  }
+  
+  // If no locations found, return empty array
+  return [];
 };
 
 // Get plant by ID

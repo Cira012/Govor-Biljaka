@@ -1,9 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Search, Leaf, X } from "lucide-react";
+import { MapPin, Search, Leaf, X, BarChart2, Info, BookOpen, Filter, Clock, Calendar, Thermometer, Sun } from "lucide-react";
 
 // Import the plants data
 import { plantsData } from "../data/plantData";
+
+// Scientific project data
+const projectInfo = {
+  title: "Fenološki Monitoring Biljnih Vrsta",
+  subtitle: "Građanska nauka u praćenju klimatskih promena",
+  objective: "Ovaj projekat ima za cilj praćenje fenoloških fenomena biljnih vrsta u Srbiji, sa fokusom na uticaj klimatskih promena na njihov životni ciklus.",
+  methodology: "Podaci se prikupljaju kroz terenska posmatranja i učešće građana, sa standardizovanim protokolima za beleženje fenoloških faza.",
+  importance: "Praćenje fenologije biljaka ključno je za razumevanje ekosistemskih promena i prilagođavanje poljoprivrednih praksi."
+};
+
+// Scientific classification helper
+const getScientificClassification = (plant) => {
+  return {
+    'Kraljevstvo': 'Plantae',
+    'Odeljenje': 'Magnoliophyta',
+    'Klasa': 'Magnoliopsida',
+    'Red': plant.family === 'Rosaceae' ? 'Rosales' : 
+           plant.family === 'Lamiaceae' ? 'Lamiales' :
+           plant.family === 'Asteraceae' ? 'Asterales' : 'Nepoznato',
+    'Porodica': plant.family || 'Nepoznato',
+    'Rod': plant.scientificName ? plant.scientificName.split(' ')[0] : 'Nepoznato'
+  };
+};
 
 // Add fallback image for missing plant images
 const fallbackImage = "/assets/plants/mentha-spicata.png";
@@ -70,57 +93,236 @@ const ImageWithFallback = ({ src, alt, className, style }) => {
   );
 };
 
+// Calculate statistics
+const calculateStats = (plants) => {
+  const families = new Set();
+  const floweringMonths = new Set();
+  
+  plants.forEach(plant => {
+    if (plant.family) families.add(plant.family);
+    if (plant.floweringSeason) {
+      const months = plant.floweringSeason.toLowerCase()
+        .split(/[^a-zčćšđž]+/)
+        .filter(Boolean);
+      months.forEach(month => floweringMonths.add(month));
+    }
+  });
+  
+  return {
+    totalPlants: plants.length,
+    totalFamilies: families.size,
+    totalFloweringMonths: floweringMonths.size,
+    averageLocations: (plants.reduce((acc, plant) => acc + (plant.locations?.length || 0), 0) / plants.length).toFixed(1)
+  };
+};
+
 export default function Collection() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState("sve");
+  const [showMethodology, setShowMethodology] = useState(false);
   
   // Sort plants by name
-  const sortedPlants = [...plantsData].sort((a, b) => a.name.localeCompare(b.name));
-
-  // Filter plants based on search term
-  const filteredPlants = sortedPlants.filter(plant => 
-    plant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (plant.scientificName && plant.scientificName.toLowerCase().includes(searchTerm.toLowerCase()))
+  const sortedPlants = useMemo(() => 
+    [...plantsData].sort((a, b) => a.name.localeCompare(b.name)),
+    [plantsData]
   );
+
+  // Filter plants based on search term and active filter
+  const filteredPlants = useMemo(() => 
+    sortedPlants.filter(plant => {
+      const matchesSearch = 
+        plant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (plant.scientificName && plant.scientificName.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      if (activeFilter === "sve") return matchesSearch;
+      if (activeFilter === "cvetaju") {
+        const currentMonth = new Date().getMonth() + 1; // 1-12
+        const monthNames = ["januar", "februar", "mart", "april", "maj", "jun", "jul", "avgust", "septembar", "oktobar", "novembar", "decembar"];
+        const currentMonthName = monthNames[currentMonth - 1];
+        return matchesSearch && 
+               plant.floweringSeason && 
+               plant.floweringSeason.toLowerCase().includes(currentMonthName.slice(0, 3));
+      }
+      return matchesSearch && plant.family === activeFilter;
+    }),
+    [searchTerm, sortedPlants, activeFilter]
+  );
+
+  // Get unique families for filter
+  const plantFamilies = useMemo(() => {
+    const families = new Set();
+    plantsData.forEach(plant => {
+      if (plant.family) families.add(plant.family);
+    });
+    return Array.from(families).sort();
+  }, []);
+
+  // Calculate statistics
+  const stats = useMemo(() => calculateStats(filteredPlants), [filteredPlants]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-emerald-50 p-4 md:p-8">
-      {/* Header */}
-      <div className="text-center mb-12 group">
-        <div className="inline-block transform transition-all duration-500 hover:scale-105">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair italic font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-amber-600 tracking-wide">
-            Herbarium Vivum
+      {/* Scientific Project Header */}
+      <div className="max-w-6xl mx-auto mb-12">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-2">
+            {projectInfo.title}
           </h1>
-          <p className="text-sm md:text-base text-amber-700/90 italic mt-2 tracking-wider font-montserrat">
-            Flora et herbaria &mdash; naturae thesaurus
+          <p className="text-lg text-emerald-700 mb-6 max-w-3xl mx-auto">
+            {projectInfo.subtitle}
           </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-emerald-400 to-amber-400 mx-auto mt-3 rounded-full shadow-md transform transition-all duration-500 group-hover:w-32 group-hover:from-emerald-500 group-hover:to-amber-500" />
+          <div className="w-32 h-1 bg-gradient-to-r from-emerald-400 to-amber-400 mx-auto rounded-full" />
         </div>
-        
-        {/* Search Bar */}
-        <div className="mt-10 max-w-2xl mx-auto">
-          <div className="relative">
+
+        {/* Project Overview */}
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-emerald-500">
+          <h2 className="text-xl font-semibold text-emerald-800 mb-4 flex items-center">
+            <Info className="mr-2 h-5 w-5" /> O projektu
+          </h2>
+          <p className="text-gray-700 mb-4">{projectInfo.objective}</p>
+          <button 
+            onClick={() => setShowMethodology(!showMethodology)}
+            className="text-emerald-600 hover:text-emerald-800 text-sm font-medium flex items-center"
+          >
+            {showMethodology ? 'Sakrij metodologiju' : 'Prikaži metodologiju istraživanja'}
+            <svg className={`ml-1 w-4 h-4 transition-transform duration-200 ${showMethodology ? 'transform rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {showMethodology && (
+            <div className="mt-4 p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+              <h3 className="font-medium text-emerald-800 mb-2">Metodologija istraživanja:</h3>
+              <p className="text-gray-700">{projectInfo.methodology}</p>
+              <h4 className="font-medium text-emerald-800 mt-3 mb-1">Važnost istraživanja:</h4>
+              <p className="text-gray-700">{projectInfo.importance}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-emerald-700">{stats.totalPlants}</div>
+            <div className="text-sm text-gray-600">Biljnih vrsta</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-emerald-700">{stats.totalFamilies}</div>
+            <div className="text-sm text-gray-600">Botaničkih porodica</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-emerald-700">{stats.totalFloweringMonths}</div>
+            <div className="text-sm text-gray-600">Meseci cvetanja</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-emerald-700">{stats.averageLocations}</div>
+            <div className="text-sm text-gray-600">Prosečno lokacija po vrsti</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter Section */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-xl font-semibold text-emerald-800 mb-4 flex items-center">
+            <Search className="mr-2 h-5 w-5" /> Pretraga i filtri
+          </h2>
+          
+          {/* Search Bar */}
+          <div className="relative mb-4">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-amber-500" />
+              <Search className="h-5 w-5 text-emerald-500" />
             </div>
             <input
               type="text"
-              placeholder="Pretraži biljke..."
-              className="w-full px-12 py-3.5 text-base rounded-xl border-2 border-amber-200 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300 shadow-sm bg-white/80 backdrop-blur-sm focus:shadow-lg focus:ring-opacity-50"
+              placeholder="Pretraži biljke po imenu ili naučnom nazivu..."
+              className="w-full px-12 py-3.5 text-base rounded-xl border-2 border-emerald-200 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300 shadow-sm bg-white/80 backdrop-blur-sm focus:shadow-lg focus:ring-opacity-50"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-amber-600 transition-colors"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             )}
           </div>
-          <p className="text-sm text-emerald-700/80 mt-3 font-medium">
-            {filteredPlants.length} {filteredPlants.length === 1 ? 'biljka pronađena' : 'biljaka pronađeno'}
-          </p>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveFilter("sve")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeFilter === "sve"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Sve vrste
+            </button>
+            <button
+              onClick={() => setActiveFilter("cvetaju")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center ${
+                activeFilter === "cvetaju"
+                  ? "bg-amber-500 text-white"
+                  : "bg-amber-100 text-amber-800 hover:bg-amber-200"
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+              Cvetaju sada
+            </button>
+            
+            {plantFamilies.slice(0, 3).map(family => (
+              <button
+                key={family}
+                onClick={() => setActiveFilter(family === activeFilter ? "sve" : family)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  activeFilter === family
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {family}
+              </button>
+            ))}
+            
+            {plantFamilies.length > 3 && (
+              <div className="relative group">
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center ${
+                    activeFilter !== "sve" && activeFilter !== "cvetaju" && plantFamilies.includes(activeFilter)
+                      ? "bg-emerald-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <Filter className="h-4 w-4 mr-1" />
+                  Još filtera
+                </button>
+                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg py-1 z-10 hidden group-hover:block hover:block">
+                  {plantFamilies.slice(3).map(family => (
+                    <button
+                      key={family}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveFilter(family === activeFilter ? "sve" : family);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                        activeFilter === family ? "text-emerald-600 font-medium" : "text-gray-700"
+                      }`}
+                    >
+                      {family}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-4 text-sm text-gray-600">
+            {filteredPlants.length} {filteredPlants.length === 1 ? 'rezultat' : 'rezultata'} pronađeno
+          </div>
         </div>
       </div>
 
@@ -131,7 +333,7 @@ export default function Collection() {
             {filteredPlants.map((plant) => (
               <Link
                 key={plant.id}
-                to={`/collection/${plant.id}`}
+                to={`/vrste/${plant.id}`}
                 className="group relative flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-emerald-100"
               >
                 {/* Image container with natural aspect ratio */}
@@ -156,7 +358,7 @@ export default function Collection() {
                 <div className="p-5 bg-white flex-1 flex flex-col">
                   <div className="flex justify-between items-start gap-2 mb-1.5">
                     <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900 truncate leading-tight">
+                      <h3 className="text-lg font-bold text-gray-900 truncate leading-tight group-hover:text-emerald-700 transition-colors">
                         {plant.name}
                       </h3>
                       {plant.scientificName && (
@@ -167,21 +369,48 @@ export default function Collection() {
                     </div>
                     
                     {/* Flowering season */}
-                    <span className="text-xs font-medium text-emerald-700 bg-emerald-100/70 rounded-full px-2.5 py-1 whitespace-nowrap flex-shrink-0">
-                      {plant.floweringSeason}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-medium text-emerald-700 bg-emerald-100/70 rounded-full px-2.5 py-1 whitespace-nowrap flex-shrink-0 mb-1">
+                        <Clock className="inline-block h-3 w-3 mr-1" />
+                        {plant.floweringSeason}
+                      </span>
+                      {plant.family && (
+                        <span className="text-xs font-medium text-amber-700 bg-amber-100/70 rounded-full px-2.5 py-1 whitespace-nowrap flex-shrink-0">
+                          {plant.family}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   
-                  {/* Location info */}
-                  {plant.locations && plant.locations.length > 0 && (
-                    <div className="flex items-center text-xs text-gray-600 mt-2.5">
-                      <MapPin className="h-3 w-3 mr-1 text-emerald-500 flex-shrink-0" />
-                      <span className="truncate">
-                        {plant.locations[0].location}
-                        {plant.locations.length > 1 && ` +${plant.locations.length - 1}`}
-                      </span>
+                  {/* Scientific Classification */}
+                  <div className="mt-2 text-xs text-gray-500">
+                    <div className="grid grid-cols-2 gap-1">
+                      {Object.entries(getScientificClassification(plant)).map(([key, value]) => (
+                        <div key={key} className="truncate">
+                          <span className="font-medium text-gray-600">{key}:</span> {value}
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                  
+                  {/* Location and observation info */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    {plant.locations && plant.locations.length > 0 && (
+                      <div className="flex items-center text-xs text-gray-600 mb-2">
+                        <MapPin className="h-3 w-3 mr-1 text-emerald-500 flex-shrink-0" />
+                        <span className="truncate">
+                          {plant.locations[0].location}
+                          {plant.locations.length > 1 && ` +${plant.locations.length - 1}`}
+                        </span>
+                      </div>
+                    )}
+                    {plant.lastObservation && (
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Calendar className="h-3 w-3 mr-1 text-amber-500 flex-shrink-0" />
+                        Poslednje posmatranje: {plant.lastObservation}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Hover overlay */}
