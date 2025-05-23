@@ -22,7 +22,7 @@ L.Icon.Default.mergeOptions({
 });
 
 // Verified plant locations with additional details
-const plantLocations = {
+export const plantLocations = {
   // Visibaba
   1: [
     { 
