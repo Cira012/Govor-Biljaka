@@ -2,8 +2,31 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Search, Leaf, X, BarChart2, Info, BookOpen, Filter, Clock, Calendar, Thermometer, Sun } from "lucide-react";
 
-// Import the plants data
+// Import the plants data and locations
 import { plantsData } from "../data/plantData";
+import { plantLocations } from "./PlantDetail";
+
+// Helper function to get plant by ID
+const getPlantById = (id) => {
+  return plantsData.find(plant => plant.id === parseInt(id)) || null;
+};
+
+// Helper function to get plant locations
+const getPlantLocations = (plantId) => {
+  // First check if the plant has specific locations in plantLocations
+  if (plantLocations[plantId]) {
+    return plantLocations[plantId];
+  }
+  
+  // If not, try to get the plant data and return its locations if they exist
+  const plant = getPlantById(plantId);
+  if (plant && plant.locations) {
+    return Array.isArray(plant.locations) ? plant.locations : [];
+  }
+  
+  // If no locations found, return empty array
+  return [];
+};
 
 // Scientific project data
 const projectInfo = {
@@ -97,22 +120,33 @@ const ImageWithFallback = ({ src, alt, className, style }) => {
 const calculateStats = (plants) => {
   const families = new Set();
   const floweringMonths = new Set();
+  const allLocations = new Set();
   
   plants.forEach(plant => {
+    // Count families
     if (plant.family) families.add(plant.family);
+    
+    // Count flowering months
     if (plant.floweringSeason) {
       const months = plant.floweringSeason.toLowerCase()
         .split(/[^a-zčćšđž]+/)
         .filter(Boolean);
       months.forEach(month => floweringMonths.add(month));
     }
+    
+    // Count unique locations using getPlantLocations
+    const locations = getPlantLocations(plant.id);
+    locations.forEach(location => {
+      allLocations.add(location.location);
+    });
   });
   
   return {
     totalPlants: plants.length,
     totalFamilies: families.size,
     totalFloweringMonths: floweringMonths.size,
-    averageLocations: (plants.reduce((acc, plant) => acc + (plant.locations?.length || 0), 0) / plants.length).toFixed(1)
+    totalLocations: allLocations.size,
+    averageLocations: (allLocations.size > 0 ? (allLocations.size / plants.length).toFixed(1) : '0.0')
   };
 };
 
@@ -202,21 +236,37 @@ export default function Collection() {
 
         {/* Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-emerald-700">{stats.totalPlants}</div>
-            <div className="text-sm text-gray-600">Biljnih vrsta</div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-emerald-50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-100">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-emerald-900">Ukupno biljaka</h3>
+              <Leaf className="h-4 w-4 text-emerald-600" />
+            </div>
+            <p className="text-3xl font-bold text-emerald-800">{stats.totalPlants}</p>
+            <p className="text-xs text-emerald-600 mt-1">različitih vrsta</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-emerald-700">{stats.totalFamilies}</div>
-            <div className="text-sm text-gray-600">Botaničkih porodica</div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-emerald-50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-100">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-emerald-900">Botaničke porodice</h3>
+              <BookOpen className="h-4 w-4 text-emerald-600" />
+            </div>
+            <p className="text-3xl font-bold text-emerald-800">{stats.totalFamilies}</p>
+            <p className="text-xs text-emerald-600 mt-1">različitih porodica</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-emerald-700">{stats.totalFloweringMonths}</div>
-            <div className="text-sm text-gray-600">Meseci cvetanja</div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-emerald-50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-100">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-emerald-900">Ukupno lokacija</h3>
+              <MapPin className="h-4 w-4 text-emerald-600" />
+            </div>
+            <p className="text-3xl font-bold text-emerald-800">{stats.totalLocations}</p>
+            <p className="text-xs text-emerald-600 mt-1">zabeleženih lokacija</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-emerald-700">{stats.averageLocations}</div>
-            <div className="text-sm text-gray-600">Prosečno lokacija po vrsti</div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-emerald-50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-100">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-emerald-900">Meseci cvetanja</h3>
+              <Calendar className="h-4 w-4 text-emerald-600" />
+            </div>
+            <p className="text-3xl font-bold text-emerald-800">{stats.totalFloweringMonths}</p>
+            <p className="text-xs text-emerald-600 mt-1">različitih meseci</p>
           </div>
         </div>
       </div>
@@ -395,15 +445,21 @@ export default function Collection() {
                   
                   {/* Location and observation info */}
                   <div className="mt-3 pt-3 border-t border-gray-100">
-                    {plant.locations && plant.locations.length > 0 && (
-                      <div className="flex items-center text-xs text-gray-600 mb-2">
-                        <MapPin className="h-3 w-3 mr-1 text-emerald-500 flex-shrink-0" />
-                        <span className="truncate">
-                          {plant.locations[0].location}
-                          {plant.locations.length > 1 && ` +${plant.locations.length - 1}`}
-                        </span>
-                      </div>
-                    )}
+                    {(() => {
+                      const locations = getPlantLocations(plant.id);
+                      if (locations.length > 0) {
+                        return (
+                          <div className="flex items-center text-xs text-gray-600 mb-2">
+                            <MapPin className="h-3 w-3 mr-1 text-emerald-500 flex-shrink-0" />
+                            <span className="truncate">
+                              {locations[0].location}
+                              {locations.length > 1 && ` +${locations.length - 1}`}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     {plant.lastObservation && (
                       <div className="flex items-center text-xs text-gray-500">
                         <Calendar className="h-3 w-3 mr-1 text-amber-500 flex-shrink-0" />
