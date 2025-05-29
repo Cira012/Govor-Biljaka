@@ -56,22 +56,53 @@ function Home() {
       
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center transform -translate-y-16 text-center px-4">
-        <h1 className="text-8xl md:text-9xl text-white mb-14 font-['Playfair_Display'] font-bold tracking-tight leading-tight">
-          <span className="block text-7xl md:text-8xl mb-3">GOVOR</span>
-          <span className="block text-8xl md:text-9xl">BILJAKA</span>
-        </h1>
+        <div className="relative mb-16 text-center">
+          <h1 className="text-8xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-200 to-white mb-2">
+            <span className="block text-7xl md:text-8xl">GOVOR</span>
+            <span className="block text-8xl md:text-9xl">BILJAKA</span>
+          </h1>
+          <div className="absolute inset-0 bg-gradient-to-r from-green-600/30 to-transparent -z-10 rounded-full blur-2xl opacity-70" style={{
+            transform: 'translateY(10%) scale(1.1)',
+            filter: 'blur(60px)'
+          }} />
+        </div>
         <Link
           to="/zbirka"
-          className="relative px-16 py-5 text-2xl bg-gradient-to-r from-green-600 to-green-700 text-white font-['Poppins'] font-semibold rounded-full
-                    hover:shadow-2xl hover:shadow-green-500/30 hover:scale-105 transform transition-all duration-300
-                    border-2 border-white/20 overflow-hidden group"
+          className="relative px-28 py-6 text-2xl font-bold text-white font-['Poppins'] rounded-full 
+                    overflow-hidden group transition-all duration-500 hover:scale-105 hover:shadow-2xl
+                    hover:shadow-green-500/40 min-w-[280px]"
           onClick={() => navigate('/zbirka')}
         >
-          <span className="relative z-10 flex items-center">
-            <span className="mr-2">Uđi</span>
-            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+          {/* Main gradient background */}
+          <span className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 group-hover:from-green-600 group-hover:to-emerald-700 transition-all duration-500"></span>
+          
+          {/* Plant decoration - left */}
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white/90">
+              <path d="M12 2C12 2 7 7.5 7 12C7 15 9 17 12 17C15 17 17 15 17 12C17 7.5 12 2 12 2Z" fill="currentColor" />
+              <path d="M12 17V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
           </span>
-          <span className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+          
+          {/* Plant decoration - right */}
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 opacity-80 group-hover:opacity-100 transition-opacity duration-300 rotate-180">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white/90">
+              <path d="M12 2C12 2 7 7.5 7 12C7 15 9 17 12 17C15 17 17 15 17 12C17 7.5 12 2 12 2Z" fill="currentColor" />
+              <path d="M12 17V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </span>
+          
+          {/* Shine effect */}
+          <span className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 group-hover:animate-shine transition-all duration-500"></span>
+          
+          {/* Button content */}
+          <span className="relative z-10 flex items-center justify-center gap-3">
+            <span className="text-2xl tracking-wide">ISTRAŽI ZBIRKU</span>
+            <span className="text-xl transition-transform duration-300 group-hover:translate-x-2">→</span>
+          </span>
+          
+          {/* Border glow */}
+          <span className="absolute inset-0 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-all duration-300"></span>
         </Link>
       </div>
     </div>
