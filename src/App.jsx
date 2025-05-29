@@ -37,102 +37,42 @@ export const featuredPlants = [
 ];
 
 function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/zbirka?search=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate('/zbirka');
-    }
-  };
-
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Navigation */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-blue-900/90 backdrop-blur-sm shadow-lg' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-white text-2xl font-bold">
-              Cvetni Fenolog
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+    <div className="relative min-h-screen">
       {/* Video Background */}
-      <div className="relative h-screen w-full">
+      <div className="absolute inset-0">
         <video
-          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+          className="w-full h-full object-cover"
           src="/forest.mp4"
           autoPlay
           muted
           loop
           playsInline
         />
-        <div className="absolute inset-0 bg-black/40 z-0" />
-        
-        {/* Hero Content Over Video */}
-        <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto px-4"
-          >
-            <h1 className="hero-heading text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-tight font-serif">
-              Pratimo Prirodu Zajedno
-            </h1>
-            <p className="hero-subheading text-xl md:text-2xl text-blue-100 mb-8 tracking-wider max-w-3xl mx-auto">
-              Pridružite se naučnom projektu praćenja fenologije biljaka
-            </p>
-            
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-              <div className="flex shadow-xl rounded-lg overflow-hidden">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 min-w-0 block w-full px-6 py-4 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Pronađite biljku..."
-                />
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  Pretraži
-                </button>
-              </div>
-            </form>
-            
-            <div className="mt-12">
-              <Link
-                to="/zbirka"
-                className="inline-flex items-center px-8 py-4 bg-white text-blue-700 text-lg font-medium rounded-lg hover:bg-blue-50 transition-colors duration-200 shadow-lg hover:shadow-xl"
-              >
-                Pregledajte celu zbirku
-                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+      
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center transform -translate-y-16 text-center px-4">
+        <h1 className="text-8xl md:text-9xl text-white mb-14 font-['Playfair_Display'] font-bold tracking-tight leading-tight">
+          <span className="block text-7xl md:text-8xl mb-3">GOVOR</span>
+          <span className="block text-8xl md:text-9xl">BILJAKA</span>
+        </h1>
+        <Link
+          to="/zbirka"
+          className="relative px-16 py-5 text-2xl bg-gradient-to-r from-green-600 to-green-700 text-white font-['Poppins'] font-semibold rounded-full
+                    hover:shadow-2xl hover:shadow-green-500/30 hover:scale-105 transform transition-all duration-300
+                    border-2 border-white/20 overflow-hidden group"
+          onClick={() => navigate('/zbirka')}
+        >
+          <span className="relative z-10 flex items-center">
+            <span className="mr-2">Uđi</span>
+            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </span>
+          <span className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+        </Link>
       </div>
     </div>
   );
