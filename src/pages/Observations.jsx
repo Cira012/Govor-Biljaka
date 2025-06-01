@@ -12,8 +12,8 @@ export default function Observations() {
     const loadObservations = async () => {
       try {
         setIsLoading(true);
-        const data = await getPlantObservations();
-        setObservations(data);
+        const observations = await getPlantObservations ? await getPlantObservations() : [];
+        setObservations(observations);
       } catch (err) {
         console.error('Error loading observations:', err);
         setError('Došlo je do greške pri učitavanju zapažanja. Pokušajte ponovno.');

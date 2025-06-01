@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@azure/storage-blob": "^12.17.0",
+    "@azure/identity": "^4.0.0",
     "buffer": "^6.0.3",
     "dotenv": "^16.5.0",
+    "node-fetch": "^3.3.2",
     "framer-motion": "^12.12.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.511.0",

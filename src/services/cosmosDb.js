@@ -5,9 +5,12 @@ const accountName = 'govorbiljaka360';
 const containerName = 'plant-observations';
 const sasToken = 'se=2026-06-02&sp=racwdl&spr=https&sv=2022-11-02&sr=c&sig=P6hghc6DKQoXr3paYyFIyKQlzfQeNBqpaMRyUJPx0zk%3D'; // Valid until 2026-06-02
 
+// Ensure SAS token starts with ? if it doesn't already
+const formattedSasToken = sasToken.startsWith('?') ? sasToken : `?${sasToken}`;
+
 // Create a BlobServiceClient with SAS token
 const blobServiceClient = new BlobServiceClient(
-  `https://${accountName}.blob.core.windows.net${sasToken}`
+  `https://${accountName}.blob.core.windows.net${formattedSasToken}`
 );
 
 // Get a reference to the container

@@ -126,12 +126,17 @@ export default function PlantCapture() {
       
       // Upload the image first
       const imageBlobClient = containerClient.getBlockBlobClient(imageName);
-      await imageBlobClient.upload(ab, ab.byteLength, {
+      const uploadResponse = await imageBlobClient.upload(ab, ab.byteLength, {
         blobHTTPHeaders: { blobContentType: mimeString }
       });
       
+      if (!uploadResponse.requestId) {
+        throw new Error('Image upload failed');
+      }
+      
       // Create the observation object with the image URL
-      const imageUrl = `https://${containerClient.accountName}.blob.core.windows.net/${containerClient.containerName}/${imageName}${sasToken}`;
+      const sasTokenWithQuestion = sasToken.startsWith('?') ? sasToken : `?${sasToken}`;
+      const imageUrl = `https://${containerClient.accountName}.blob.core.windows.net/${containerClient.containerName}/${imageName}${sasTokenWithQuestion}`;
       
       const observation = {
         id: jsonName,
