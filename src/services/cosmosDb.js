@@ -1,10 +1,34 @@
 import { CosmosClient } from '@azure/cosmos';
 
-// Direct configuration (for development only)
-const endpoint = 'https://suza-plants-db-eu.documents.azure.com:443/';
-const key = 'fRtDjSJ6EP7Gvo9mCtPPFqVYnGc9tX5qkguNTlB6Dl8UVJXqww4uyetqia1E8bkSFp7UoMxpnVyeACDb6NaxIW==';
-const databaseId = 'plants-db';
-const containerId = 'plant-observations';
+// Helper function to get environment variables in both Vite and Node.js
+const getEnv = (key, defaultValue = '') => {
+  // In browser (Vite)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[key] || defaultValue;
+  }
+  // In Node.js
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key] || defaultValue;
+  }
+  return defaultValue;
+};
+
+// Get configuration from environment variables
+const connectionString = getEnv('VITE_COSMOS_CONNECTION_STRING');
+const databaseId = getEnv('VITE_COSMOS_DATABASE', 'plants-db');
+const containerId = getEnv('VITE_COSMOS_CONTAINER', 'plant-observations');
+
+if (!connectionString) {
+  throw new Error('Missing required Cosmos DB configuration. Please set VITE_COSMOS_CONNECTION_STRING environment variable.');
+}
+
+// Parse connection string
+const endpoint = connectionString.match(/AccountEndpoint=([^;]+)/)?.[1];
+const key = connectionString.match(/AccountKey=([^;]+)/)?.[1];
+
+if (!endpoint || !key) {
+  throw new Error('Invalid Cosmos DB connection string format');
+}
 
 const client = new CosmosClient({ endpoint, key });
 const container = client.database(databaseId).container(containerId);
