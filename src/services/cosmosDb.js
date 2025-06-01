@@ -69,13 +69,14 @@ export async function savePlantObservation(observation) {
     console.error('Error saving plant observation:', error);
     throw error;
   }
+
 }
 
 /**
  * Gets all plant observations from Blob Storage
  * @returns {Promise<Array>} - Array of plant observations
  */
-export async function getPlantObservations() {
+async function getPlantObservations() {
   try {
     const observations = [];
     
@@ -125,7 +126,7 @@ export async function getPlantObservationById(id) {
  * @param {string} id - The ID of the observation to delete
  * @returns {Promise<Object>} - The result of the delete operation
  */
-export async function deletePlantObservation(id) {
+async function deletePlantObservation(id) {
   try {
     const blobClient = containerClient.getBlobClient(id);
     await blobClient.delete();
@@ -136,8 +137,9 @@ export async function deletePlantObservation(id) {
   }
 }
 
-// Export all necessary functions and variables
+// Export all functions and variables
 export {
+  savePlantObservation,
   getPlantObservations,
   getPlantObservationById,
   deletePlantObservation,
