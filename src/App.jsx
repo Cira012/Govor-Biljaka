@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import Collection from "./pages/Collection";
 import PlantDetail from "./pages/PlantDetail";
 import PlantCapture from "./components/PlantCapture";
-import { Camera, Home, BookOpen } from 'lucide-react';
+import Observations from "./pages/Observations";
+import { Camera, Home, BookOpen, List } from 'lucide-react';
 
 // Sample featured plants data
 export const featuredPlants = [
@@ -145,6 +146,15 @@ function App() {
               <BookOpen className="mr-1 h-4 w-4" />
               <span>Zbirka</span>
             </NavLink>
+            <NavLink 
+              to="/zapazanja" 
+              className={({ isActive }) => 
+                `flex items-center px-3 py-2 rounded ${isActive ? 'bg-green-600' : 'hover:bg-green-600'}`
+              }
+            >
+              <List className="mr-1 h-4 w-4" />
+              <span>Moja zapažanja</span>
+            </NavLink>
           </nav>
         </div>
       </header>
@@ -155,6 +165,7 @@ function App() {
           <Route path="/zbirka" element={<Collection />} />
           <Route path="/vrste/:id" element={<PlantDetail />} />
           <Route path="/snimi" element={<PlantCapture />} />
+          <Route path="/zapazanja" element={<Observations />} />
         </Routes>
       </main>
       

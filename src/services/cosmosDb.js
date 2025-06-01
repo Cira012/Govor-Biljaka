@@ -1,67 +1,147 @@
-import { CosmosClient } from '@azure/cosmos';
+import { BlobServiceClient } from '@azure/storage-blob';
 
-// Helper function to get environment variables in both Vite and Node.js
-const getEnv = (key, defaultValue = '') => {
-  // In browser (Vite)
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env[key] || defaultValue;
+// Azure Blob Storage configuration
+const accountName = 'biljke';
+const containerName = 'plant-observations';
+const sasToken = 'YOUR_SAS_TOKEN_HERE'; // Replace with your SAS token
+
+// Create a BlobServiceClient with SAS token
+const blobServiceClient = new BlobServiceClient(
+  `https://${accountName}.blob.core.windows.net${sasToken}`
+);
+
+// Get a reference to the container
+const containerClient = blobServiceClient.getContainerClient(containerName);
+
+/**
+ * Helper function to convert stream to text
+ * @param {ReadableStream} readable - The readable stream to convert
+ * @returns {Promise<string>} - The text content of the stream
+ */
+async function streamToText(readable) {
+  const chunks = [];
+  const reader = readable.getReader();
+  
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    return Buffer.concat(chunks).toString('utf-8');
+  } finally {
+    reader.releaseLock();
   }
-  // In Node.js
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key] || defaultValue;
-  }
-  return defaultValue;
-};
-
-// Get configuration from environment variables
-// Vite requires VITE_ prefix for client-side environment variables
-const connectionString = getEnv('VITE_COSMOS_CONNECTION_STRING');
-const databaseId = getEnv('VITE_COSMOS_DATABASE') || 'plants-db';
-const containerId = getEnv('VITE_COSMOS_CONTAINER') || 'plant-observations';
-
-if (!connectionString) {
-  throw new Error('Missing required Cosmos DB configuration. Please set VITE_COSMOS_CONNECTION_STRING environment variable.');
 }
 
-// Parse connection string
-const endpoint = connectionString.match(/AccountEndpoint=([^;]+)/)?.[1];
-const key = connectionString.match(/AccountKey=([^;]+)/)?.[1];
+/**
+ * Saves a plant observation to Blob Storage
+ * @param {Object} observation - The plant observation data to save
+ * @returns {Promise<Object>} - The saved observation with additional metadata
+ */
+export async function savePlantObservation(observation) {
+  try {
+    // Add timestamp if not present
+    const observationWithTimestamp = {
+      ...observation,
+      timestamp: observation.timestamp || new Date().toISOString(),
+    };
 
-if (!endpoint || !key) {
-  throw new Error('Invalid Cosmos DB connection string format');
+    // Create a unique blob name using timestamp
+    const blobName = `observation-${Date.now()}.json`;
+    
+    // Get a block blob client
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    
+    // Upload the data to the blob
+    const uploadBlobResponse = await blockBlobClient.upload(
+      JSON.stringify(observationWithTimestamp, null, 2),
+      Buffer.byteLength(JSON.stringify(observationWithTimestamp))
+    );
+
+    return {
+      ...observationWithTimestamp,
+      id: blobName,
+      _etag: uploadBlobResponse.etag,
+      _timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error saving plant observation:', error);
+    throw error;
+  }
 }
 
-const client = new CosmosClient({ endpoint, key });
-const container = client.database(databaseId).container(containerId);
-
-export const savePlantObservation = async (observation) => {
-    try {
-        // Add timestamp and ID if not present
-        const observationWithId = {
-            ...observation,
-            id: observation.id || `obs-${Date.now()}`,
-            timestamp: observation.timestamp || new Date().toISOString(),
-            // Ensure location is properly formatted
-            location: observation.location || { lat: 0, lng: 0 }
-        };
-
-        const { resource } = await container.items.create(observationWithId);
-        return resource;
-    } catch (error) {
-        console.error("Error saving to Cosmos DB:", error);
-        throw error;
+/**
+ * Gets all plant observations from Blob Storage
+ * @returns {Promise<Array>} - Array of plant observations
+ */
+export async function getPlantObservations() {
+  try {
+    const observations = [];
+    
+    // List all blobs in the container
+    for await (const blob of containerClient.listBlobsFlat()) {
+      if (blob.name.endsWith('.json')) {
+        try {
+          const blobClient = containerClient.getBlobClient(blob.name);
+          const downloadBlockBlobResponse = await blobClient.download();
+          const downloaded = await streamToText(downloadBlockBlobResponse.readableStreamBody);
+          observations.push(JSON.parse(downloaded));
+        } catch (error) {
+          console.error(`Error processing blob ${blob.name}:`, error);
+        }
+      }
     }
-};
+    
+    // Sort by timestamp descending
+    return observations.sort((a, b) => 
+      new Date(b.timestamp) - new Date(a.timestamp)
+    );
+  } catch (error) {
+    console.error('Error listing plant observations:', error);
+    throw error;
+  }
+}
 
-export const getPlantObservations = async () => {
-    try {
-        const querySpec = {
-            query: "SELECT * FROM c ORDER BY c.timestamp DESC"
-        };
-        const { resources } = await container.items.query(querySpec).fetchAll();
-        return resources;
-    } catch (error) {
-        console.error("Error reading from Cosmos DB:", error);
-        throw error;
-    }
+/**
+ * Gets a single plant observation by ID
+ * @param {string} id - The ID of the observation to retrieve
+ * @returns {Promise<Object>} - The requested plant observation
+ */
+export async function getPlantObservationById(id) {
+  try {
+    const blobClient = containerClient.getBlobClient(id);
+    const downloadBlockBlobResponse = await blobClient.download();
+    const downloaded = await streamToText(downloadBlockBlobResponse.readableStreamBody);
+    return JSON.parse(downloaded);
+  } catch (error) {
+    console.error(`Error fetching plant observation with id ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes a plant observation by ID
+ * @param {string} id - The ID of the observation to delete
+ * @returns {Promise<Object>} - The result of the delete operation
+ */
+export async function deletePlantObservation(id) {
+  try {
+    const blobClient = containerClient.getBlobClient(id);
+    await blobClient.delete();
+    return { id, deleted: true };
+  } catch (error) {
+    console.error(`Error deleting plant observation with id ${id}:`, error);
+    throw error;
+  }
+}
+
+// Export all necessary functions and variables
+export {
+  savePlantObservation,
+  getPlantObservations,
+  getPlantObservationById,
+  deletePlantObservation,
+  containerClient,
+  sasToken
 };

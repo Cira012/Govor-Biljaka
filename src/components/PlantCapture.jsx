@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { savePlantObservation } from '../services/cosmosDb';
+import { useNavigate, Link } from 'react-router-dom';
+import { savePlantObservation, containerClient, sasToken } from '../services/cosmosDb';
+import { Buffer } from 'buffer';
+import { List } from 'lucide-react';
 
 export default function PlantCapture() {
   const [image, setImage] = useState(null);
@@ -81,6 +83,18 @@ export default function PlantCapture() {
     startCamera();
   };
 
+  // Convert base64 image to blob
+  const dataURLtoBlob = (dataURL) => {
+    const byteString = atob(dataURL.split(',')[1]);
+    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -94,16 +108,53 @@ export default function PlantCapture() {
     setSuccess('');
 
     try {
+      // Create a unique filename for the image
+      const timestamp = Date.now();
+      const imageName = `image-${timestamp}.jpg`;
+      const jsonName = `observation-${timestamp}.json`;
+      
+      // Convert base64 to blob
+      const byteString = atob(image.split(',')[1]);
+      const mimeString = image.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const imageBlob = new Blob([ab], { type: mimeString });
+      
+      // Upload the image first
+      const imageBlobClient = containerClient.getBlockBlobClient(imageName);
+      await imageBlobClient.upload(ab, ab.byteLength, {
+        blobHTTPHeaders: { blobContentType: mimeString }
+      });
+      
+      // Create the observation object with the image URL
+      const imageUrl = `https://${containerClient.accountName}.blob.core.windows.net/${containerClient.containerName}/${imageName}${sasToken}`;
+      
       const observation = {
+        id: jsonName,
         name: name || 'Nepoznata biljka',
         description,
-        image,
+        imageName,
+        imageUrl,
         location: location || { lat: 0, lng: 0 },
-        observationDate: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
       };
 
-      await savePlantObservation(observation);
-      setSuccess('Zapažanje uspješno spremljeno!');
+      // Save the observation as JSON
+      const jsonBlobClient = containerClient.getBlockBlobClient(jsonName);
+      const jsonString = JSON.stringify(observation, null, 2);
+      await jsonBlobClient.upload(jsonString, Buffer.byteLength(jsonString), {
+        blobHTTPHeaders: { blobContentType: 'application/json' }
+      });
+      
+      setSuccess('Zapažanje uspješno spremljeno! Preusmjeravanje...');
+      
+      // Redirect to observations page after a short delay
+      setTimeout(() => {
+        navigate('/zapazanja');
+      }, 1500);
       
       // Reset form
       setImage(null);
@@ -120,7 +171,16 @@ export default function PlantCapture() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Dodaj novo zapažanje biljke</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Dodaj novo zapažanje biljke</h1>
+        <Link 
+          to="/zapazanja"
+          className="text-green-600 hover:text-green-800 font-medium flex items-center"
+        >
+          <List className="mr-1 h-4 w-4" />
+          Pregledaj sva zapažanja
+        </Link>
+      </div>
       
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
       {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
