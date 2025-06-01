@@ -23,7 +23,7 @@ export default function Observations() {
     };
 
     loadObservations();
-  }, []);
+  }, [sasToken]); // Add sasToken to dependency array
 
   const formatDate = (dateString) => {
     const options = { 
@@ -82,14 +82,19 @@ export default function Observations() {
           {observations.map((obs) => (
             <div key={obs.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="h-48 bg-gray-100 overflow-hidden flex items-center justify-center">
-                {obs.imageUrl ? (
+                {obs.imageName ? (
                   <img 
-                    src={obs.imageUrl} 
+                    src={`https://govorbiljaka360.blob.core.windows.net/plant-observations/${obs.imageName}?${sasToken}`}
                     alt={obs.name || 'Biljka bez naziva'}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/assets/plants/mentha-spicata.png';
+                      // Fallback to the original URL if the direct URL fails
+                      if (obs.imageUrl) {
+                        e.target.src = obs.imageUrl;
+                      } else {
+                        e.target.src = '/assets/plants/mentha-spicata.png';
+                      }
                     }}
                   />
                 ) : (

@@ -135,8 +135,8 @@ export default function PlantCapture() {
       }
       
       // Create the observation object with the image URL
-      const sasTokenWithQuestion = sasToken.startsWith('?') ? sasToken : `?${sasToken}`;
-      const imageUrl = `https://${containerClient.accountName}.blob.core.windows.net/${containerClient.containerName}/${imageName}${sasTokenWithQuestion}`;
+      const cleanSasToken = sasToken.startsWith('?') ? sasToken.substring(1) : sasToken;
+      const imageUrl = `https://${containerClient.accountName}.blob.core.windows.net/${containerClient.containerName}/${imageName}?${cleanSasToken}`;
       
       const observation = {
         id: jsonName,

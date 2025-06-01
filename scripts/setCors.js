@@ -1,4 +1,4 @@
-const { BlobServiceClient } = require('@azure/storage-blob');
+import { BlobServiceClient } from '@azure/storage-blob';
 
 // Replace with your storage account name and SAS token
 const accountName = 'govorbiljaka360';
