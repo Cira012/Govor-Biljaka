@@ -1,14 +1,10 @@
 import { CosmosClient } from '@azure/cosmos';
 
-// Load environment variables from Vite
-const endpoint = import.meta.env.VITE_COSMOS_ENDPOINT;
-const key = import.meta.env.VITE_COSMOS_KEY;
-const databaseId = import.meta.env.VITE_COSMOS_DATABASE || 'plants-db';
-const containerId = import.meta.env.VITE_COSMOS_CONTAINER || 'plant-observations';
-
-if (!endpoint || !key) {
-    throw new Error('Missing required Cosmos DB configuration. Please set VITE_COSMOS_ENDPOINT and VITE_COSMOS_KEY environment variables.');
-}
+// Direct configuration (for development only)
+const endpoint = 'https://suza-plants-db-eu.documents.azure.com:443/';
+const key = 'fRtDjSJ6EP7Gvo9mCtPPFqVYnGc9tX5qkguNTlB6Dl8UVJXqww4uyetqia1E8bkSFp7UoMxpnVyeACDb6NaxIW==';
+const databaseId = 'plants-db';
+const containerId = 'plant-observations';
 
 const client = new CosmosClient({ endpoint, key });
 const container = client.database(databaseId).container(containerId);
