@@ -38,7 +38,7 @@ export const featuredPlants = [
   }
 ];
 
-function Home() {
+function HomePage() {
   const navigate = useNavigate();
 
   return (
@@ -151,7 +151,7 @@ function App() {
       
       <main className="flex-grow container mx-auto p-4">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/zbirka" element={<Collection />} />
           <Route path="/vrste/:id" element={<PlantDetail />} />
           <Route path="/snimi" element={<PlantCapture />} />
