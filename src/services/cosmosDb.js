@@ -138,7 +138,6 @@ export async function deletePlantObservation(id) {
 
 // Export all necessary functions and variables
 export {
-  savePlantObservation,
   getPlantObservations,
   getPlantObservationById,
   deletePlantObservation,
