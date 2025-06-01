@@ -1,0 +1,35 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*", "/*.css", "/*.js", "/*.json"]
+  },
+  "mimeTypes": {
+    ".json": "text/json"
+  },
+  "responseOverrides": {
+    "400": {
+      "rewrite": "/index.html"
+    },
+    "401": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad"
+    },
+    "403": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad?post_login_redirect_url=/"
+    },
+    "404": {
+      "rewrite": "/index.html"
+    }
+  },
+  "platform": {
+    "apiRuntime": "node:18"
+  }
+}
