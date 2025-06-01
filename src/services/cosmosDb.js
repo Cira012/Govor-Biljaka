@@ -39,7 +39,7 @@ async function streamToText(readable) {
  * @param {Object} observation - The plant observation data to save
  * @returns {Promise<Object>} - The saved observation with additional metadata
  */
-export async function savePlantObservation(observation) {
+async function savePlantObservation(observation) {
   try {
     // Add timestamp if not present
     const observationWithTimestamp = {
@@ -109,7 +109,7 @@ async function getPlantObservations() {
  * @param {string} id - The ID of the observation to retrieve
  * @returns {Promise<Object>} - The requested plant observation
  */
-export async function getPlantObservationById(id) {
+async function getPlantObservationById(id) {
   try {
     const blobClient = containerClient.getBlobClient(id);
     const downloadBlockBlobResponse = await blobClient.download();
