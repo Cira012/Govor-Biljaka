@@ -103,6 +103,7 @@ export default function PlantCapture() {
       return;
     }
 
+    console.log('Starting form submission...');
     setIsLoading(true);
     setError('');
     setSuccess('');
@@ -163,7 +164,17 @@ export default function PlantCapture() {
       startCamera();
     } catch (err) {
       console.error('Greška pri spremanju zapažanja:', err);
-      setError('Došlo je do greške pri spremanju. Pokušajte ponovno.');
+      let errorMessage = 'Došlo je do greške pri spremanju. ';
+      
+      if (err.message) {
+        errorMessage += `Detalji: ${err.message}`;
+      } else if (err.request) {
+        errorMessage += 'Nije moguće spojiti se na server. Provjerite internetsku vezu.';
+      } else if (err.response) {
+        errorMessage += `Server je vratio grešku: ${err.response.status} ${err.response.statusText}`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
