@@ -34,6 +34,8 @@ jobs:
           action: "upload"
           app_location: "/"
           output_location: "dist"
+          api_location: "function-app"
           app_build_command: "npm run build"
+          api_build_command: "npm install"
           app_artifact_location: "dist"
           verbose: true
