@@ -14,10 +14,10 @@ const getEnv = (key, defaultValue = '') => {
 };
 
 // Get configuration from environment variables
-// Using PUBLIC_ prefix for Vite client-side environment variables
-const connectionString = getEnv('PUBLIC_COSMOS_CONNECTION_STRING') || getEnv('VITE_COSMOS_CONNECTION_STRING');
-const databaseId = getEnv('PUBLIC_COSMOS_DATABASE') || getEnv('VITE_COSMOS_DATABASE', 'plants-db');
-const containerId = getEnv('PUBLIC_COSMOS_CONTAINER') || getEnv('VITE_COSMOS_CONTAINER', 'plant-observations');
+// Vite requires VITE_ prefix for client-side environment variables
+const connectionString = getEnv('VITE_COSMOS_CONNECTION_STRING');
+const databaseId = getEnv('VITE_COSMOS_DATABASE') || 'plants-db';
+const containerId = getEnv('VITE_COSMOS_CONTAINER') || 'plant-observations';
 
 if (!connectionString) {
   throw new Error('Missing required Cosmos DB configuration. Please set VITE_COSMOS_CONNECTION_STRING environment variable.');
