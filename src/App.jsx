@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, Link } from "react-router-dom";
+import { Routes, Route, useNavigate, Link, NavLink } from "react-router-dom";
 import { motion } from 'framer-motion';
 import Collection from "./pages/Collection";
 import PlantDetail from "./pages/PlantDetail";
+import PlantCapture from "./components/PlantCapture";
+import { Camera, Home, BookOpen } from 'lucide-react';
 
 // Sample featured plants data
 export const featuredPlants = [
@@ -111,11 +113,55 @@ function Home() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/zbirka" element={<Collection />} />
-      <Route path="/vrste/:id" element={<PlantDetail />} />
-    </Routes>
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-green-700 text-white p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Govor Biljaka</h1>
+          <nav className="flex space-x-4">
+            <NavLink 
+              to="/" 
+              className={({ isActive }) => 
+                `flex items-center px-3 py-2 rounded ${isActive ? 'bg-green-600' : 'hover:bg-green-600'}`
+              }
+            >
+              <Home className="mr-1 h-4 w-4" />
+              <span>Početna</span>
+            </NavLink>
+            <NavLink 
+              to="/snimi" 
+              className={({ isActive }) => 
+                `flex items-center px-3 py-2 rounded ${isActive ? 'bg-green-600' : 'hover:bg-green-600'}`
+              }
+            >
+              <Camera className="mr-1 h-4 w-4" />
+              <span>Snimi biljku</span>
+            </NavLink>
+            <NavLink 
+              to="/zbirka" 
+              className={({ isActive }) => 
+                `flex items-center px-3 py-2 rounded ${isActive ? 'bg-green-600' : 'hover:bg-green-600'}`
+              }
+            >
+              <BookOpen className="mr-1 h-4 w-4" />
+              <span>Zbirka</span>
+            </NavLink>
+          </nav>
+        </div>
+      </header>
+      
+      <main className="flex-grow container mx-auto p-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/zbirka" element={<Collection />} />
+          <Route path="/vrste/:id" element={<PlantDetail />} />
+          <Route path="/snimi" element={<PlantCapture />} />
+        </Routes>
+      </main>
+      
+      <footer className="bg-gray-100 p-4 text-center text-gray-600 text-sm">
+        <p>© {new Date().getFullYear()} Govor Biljaka. Sva prava zadržana.</p>
+      </footer>
+    </div>
   );
 }
 
