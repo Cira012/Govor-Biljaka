@@ -1,9 +1,9 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 
 // Azure Blob Storage configuration
-const accountName = 'biljke';
+const accountName = 'govorbiljaka360';
 const containerName = 'plant-observations';
-const sasToken = 'YOUR_SAS_TOKEN_HERE'; // Replace with your SAS token
+const sasToken = 'se=2026-06-02&sp=racwdl&spr=https&sv=2022-11-02&sr=c&sig=P6hghc6DKQoXr3paYyFIyKQlzfQeNBqpaMRyUJPx0zk%3D'; // Valid until 2026-06-02
 
 // Create a BlobServiceClient with SAS token
 const blobServiceClient = new BlobServiceClient(
