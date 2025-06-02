@@ -13,8 +13,8 @@ const blobServiceClient = new BlobServiceClient(
   `https://${accountName}.blob.core.windows.net${cleanSasToken}`
 );
 
-// Export the cleanSasToken for use in components
-export const storageSasToken = cleanSasToken;
+// Clean up the SAS token for use in components
+const storageSasToken = cleanSasToken;
 
 // Get a reference to the container
 const containerClient = blobServiceClient.getContainerClient(containerName);
