@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getPlantObservations } from '../services/cosmosDb';
+import { getPlantObservations, storageSasToken } from '../services/cosmosDb';
 import { MapPin, Calendar, Leaf, Clock } from 'lucide-react';
 
 export default function Observations() {
@@ -23,7 +23,7 @@ export default function Observations() {
     };
 
     loadObservations();
-  }, [storageSasToken]); // Add storageSasToken to dependency array
+  }, []); // Removed storageSasToken from deps as it's a constant
 
   const formatDate = (dateString) => {
     const options = { 
@@ -89,11 +89,16 @@ export default function Observations() {
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.onerror = null;
-                      // Fallback to the original URL if the direct URL fails
+                      // Try with the imageUrl if available
                       if (obs.imageUrl) {
                         e.target.src = obs.imageUrl;
                       } else {
-                        e.target.src = '/assets/plants/mentha-spicata.png';
+                        // Try with the imageName directly
+                        e.target.src = `https://govorbiljaka360.blob.core.windows.net/plant-observations/${obs.imageName}`;
+                        // If that fails, use fallback
+                        e.target.onerror = () => {
+                          e.target.src = '/assets/plants/mentha-spicata.png';
+                        };
                       }
                     }}
                   />
