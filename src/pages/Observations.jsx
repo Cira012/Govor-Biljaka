@@ -84,7 +84,7 @@ export default function Observations() {
               <div className="h-48 bg-gray-100 overflow-hidden flex items-center justify-center">
                 {obs.imageName ? (
                   <img 
-                    src={`https://govorbiljaka360.blob.core.windows.net/plant-observations/${obs.imageName}?${sasToken}`}
+                    src={`https://govorbiljaka360.blob.core.windows.net/plant-observations/${obs.imageName}${storageSasToken}`}
                     alt={obs.name || 'Biljka bez naziva'}
                     className="w-full h-full object-cover"
                     onError={(e) => {
