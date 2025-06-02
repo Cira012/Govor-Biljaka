@@ -150,5 +150,5 @@ export {
   getPlantObservationById,
   deletePlantObservation,
   containerClient,
-  sasToken
+  storageSasToken
 };
