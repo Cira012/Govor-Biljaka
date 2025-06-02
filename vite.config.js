@@ -6,13 +6,9 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
   define: {
-    // Only expose specific environment variables that start with VITE_
-    'import.meta.env': Object.entries(process.env).reduce((acc, [key, val]) => {
-      if (key.startsWith('VITE_')) {
-        acc[key] = val;
-      }
-      return acc;
-    }, {})
+    // Minimal environment variables
+    'process.env': {},
+    'import.meta.env': {}
   },
   build: {
     outDir: 'dist',
@@ -20,15 +16,18 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
+      onwarn(warning, warn) {
+        // Skip circular dependency warnings
+        if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+        warn(warning);
+      },
     },
+    target: 'esnext',
+    minify: 'esbuild',
   },
   server: {
     port: 3000,
     open: true,
   },
-  preview: {
-    port: 3000,
-    open: true,
-  },
-  base: './', // This is important for Azure Static Web Apps
+  base: './', // Important for Azure Static Web Apps
 });
