@@ -14,7 +14,7 @@ const blobServiceClient = new BlobServiceClient(
 );
 
 // Clean up the SAS token for use in components
-const storageSasToken = cleanSasToken;
+export const storageSasToken = cleanSasToken;
 
 // Get a reference to the container
 const containerClient = blobServiceClient.getContainerClient(containerName);

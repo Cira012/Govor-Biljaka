@@ -23,7 +23,7 @@ export default function Observations() {
     };
 
     loadObservations();
-  }, [sasToken]); // Add sasToken to dependency array
+  }, [storageSasToken]); // Add storageSasToken to dependency array
 
   const formatDate = (dateString) => {
     const options = { 

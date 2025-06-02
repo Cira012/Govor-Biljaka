@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { savePlantObservation, containerClient, sasToken } from '../services/cosmosDb';
+import { savePlantObservation, containerClient, storageSasToken } from '../services/cosmosDb';
 import { Buffer } from 'buffer';
 import { List } from 'lucide-react';
 
