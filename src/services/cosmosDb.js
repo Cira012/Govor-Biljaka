@@ -1,7 +1,7 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 
 // Azure Blob Storage configuration
-const accountName = 'govorbiljaka360';
+const accountName = 'govorbilljaka360';
 const containerName = 'plant-observations';
 const sasToken = 'se=2026-06-02T02:45Z&sp=rwdlacup&sv=2022-11-02&ss=b&srt=sco&sig=TuD4VW%2B8670mDWZbGHWak8C7CgBSZTZoYCfqGuRtP3A%3D'; // Valid until 2026-06-02
 
