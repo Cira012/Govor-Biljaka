@@ -39,6 +39,8 @@ jobs:
           app_location: '/'
           output_location: 'dist'
           skip_app_build: false
+          skip_api_build: true  # Skip API build since we're not using Azure Functions
+          api_location: ''  # Explicitly set to empty to prevent function deployment
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
