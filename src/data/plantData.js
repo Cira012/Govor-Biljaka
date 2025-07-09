@@ -327,7 +327,7 @@ export const plantsData = [
     name: "Menta spicata",
     scientificName: "Mentha spicata L.",
     description: "Menta spicata, poznata i kao zelena metvica ili menta, je višegodišnja zeljasta biljka iz porodice usnatica (Lamiaceae). Naraste 30-100 cm u visinu. Stablo je uspravno, četvrtastog preseka, golo ili retko dlakavo. Listovi su nasuprotni, jajasti do duguljasti, nazubljeni, dugi 5-9 cm i široki 1,5-3 cm. Cvetovi su ljubičasti, skupljeni u tanke, vitke klasove duge 4-8 cm. Cveta od jula do septembra. Plod je mali orah. Menta spicata je aromatična biljka, karakterističnog mirisa i ukusa. Koristi se u ishrani, medicini i kozmetici. Listovi se koriste sveži ili sušeni, kao začin u kulinarstvu, za pripremu čajeva, sokova, sirupa, slatkiša, žvakaćih guma, pastila, sladoleda. Esencijalno ulje mentole se koristi u prehrambenoj, farmaceutskoj i kozmetičkoj industriji. U narodnoj medicini se koristi za lečenje probavnih smetnji, glavobolje, prehlade, groznice, bolova u mišićima i zglobovima. Menta spicata se lako gaji u baštama i saksijama, voli vlažna, plodna zemljišta i sunčana ili polusenovita mesta. Može se množiti semenkama, ali češće vegetativno, izdanjcima ili delenjem biljke.",
-    image: "/assets/plants/MENTA_SPICATA_-_Mentha_spicata_20250507T175315.png",
+    image: "/assets/plants/mentha-spicata.png",
     locations: [
       {
         lat: 44.7866,

@@ -16,13 +16,11 @@
       "name": "res"
     },
     {
-      "type": "cosmosDB",
+      "type": "blob",
       "direction": "out",
-      "name": "outputDocument",
-      "databaseName": "plants-db",
-      "collectionName": "plant-observations",
-      "createIfNotExists": true,
-      "connectionStringSetting": "CosmosDbConnectionString"
+      "name": "outputBlob",
+      "path": "plant-observations/{rand-guid}.json",
+      "connection": "AzureWebJobsStorage"
     }
   ]
 }

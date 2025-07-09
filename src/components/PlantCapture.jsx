@@ -1,30 +1,78 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { savePlantObservation, containerClient, storageSasToken } from '../services/cosmosDb';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { containerClient, storageSasToken } from '../services/storageService';
 import { Buffer } from 'buffer';
-import { List } from 'lucide-react';
+import { X } from 'lucide-react';
+import { plantsData } from '../data/plantData';
+
+function useGeolocation() {
+  const [location, setLocation] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    const handleSuccess = (position) => {
+      setLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy
+      });
+    };
+
+    const handleError = (error) => {
+      console.error('Geolocation error:', error);
+      setError(`Unable to retrieve your location: ${error.message}`);
+    };
+
+    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    });
+  }, []);
+
+  return { location, error };
+}
 
 export default function PlantCapture() {
+  const location = useLocation();
+  const [selectedPlant, setSelectedPlant] = useState(null);
   const [image, setImage] = useState(null);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [cameraActive, setCameraActive] = useState(false);
+  const { location: userLocation, error: locationError } = useGeolocation();
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const navigate = useNavigate();
 
-  // Start the camera when component mounts
+  // Set selected plant from URL params if available
   useEffect(() => {
-    startCamera();
+    const params = new URLSearchParams(location.search);
+    const plantId = params.get('plantId');
+    if (plantId) {
+      const plant = plantsData.find(p => p.id === parseInt(plantId));
+      if (plant) {
+        setSelectedPlant(plant);
+      }
+    }
+  }, [location]);
+
+  // Start the camera when a plant is selected and component is ready
+  useEffect(() => {
+    if (selectedPlant) {
+      startCamera();
+    }
     return () => {
       stopCamera();
     };
-  }, []);
+  }, [selectedPlant]);
 
   const startCamera = async () => {
     try {
@@ -98,8 +146,18 @@ export default function PlantCapture() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!selectedPlant) {
+      setError('Molimo odaberite biljku prije nego što uslikate');
+      return;
+    }
+
     if (!image) {
       setError('Molimo uslikajte biljku prvo');
+      return;
+    }
+
+    if (locationError) {
+      setError(`Greška pri dohvaćanju lokacije: ${locationError}`);
       return;
     }
 
@@ -109,10 +167,14 @@ export default function PlantCapture() {
     setSuccess('');
 
     try {
-      // Create a unique filename for the image
       const timestamp = Date.now();
+      const date = new Date();
+      const dateString = date.toISOString().split('T')[0];
+      
+      // Create folder structure: plants/{plant-id}/{date}/image-{timestamp}.jpg
+      const folderPath = `plants/${selectedPlant.id}/${dateString}`;
       const imageName = `image-${timestamp}.jpg`;
-      const jsonName = `observation-${timestamp}.json`;
+      const imagePath = `${folderPath}/${imageName}`;
       
       // Convert base64 to blob
       const byteString = atob(image.split(',')[1]);
@@ -122,36 +184,19 @@ export default function PlantCapture() {
       for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
       }
-      const imageBlob = new Blob([ab], { type: mimeString });
       
-      // Upload the image first
-      const imageBlobClient = containerClient.getBlockBlobClient(imageName);
-      const uploadResponse = await imageBlobClient.upload(ab, ab.byteLength, {
-        blobHTTPHeaders: { blobContentType: mimeString }
-      });
-      
-      if (!uploadResponse.requestId) {
-        throw new Error('Image upload failed');
-      }
-      
-      // Create the observation object with the image URL
-      const imageUrl = `https://${containerClient.accountName}.blob.core.windows.net/${containerClient.containerName}/${imageName}${storageSasToken || ''}`;
-      
-      const observation = {
-        id: jsonName,
-        name: name || 'Nepoznata biljka',
-        description,
-        imageName,
-        imageUrl,
-        location: location || { lat: 0, lng: 0 },
-        timestamp: new Date().toISOString(),
-      };
-
-      // Save the observation as JSON
-      const jsonBlobClient = containerClient.getBlockBlobClient(jsonName);
-      const jsonString = JSON.stringify(observation, null, 2);
-      await jsonBlobClient.upload(jsonString, Buffer.byteLength(jsonString), {
-        blobHTTPHeaders: { blobContentType: 'application/json' }
+      // Upload the image to the plant's folder
+      const imageBlobClient = containerClient.getBlockBlobClient(imagePath);
+      await imageBlobClient.upload(ab, ab.byteLength, {
+        blobHTTPHeaders: { blobContentType: mimeString },
+        metadata: {
+          plantId: selectedPlant.id.toString(),
+          plantName: selectedPlant.name,
+          scientificName: selectedPlant.scientificName,
+          timestamp: date.toISOString(),
+          location: userLocation ? `${userLocation.lat},${userLocation.lng}` : 'unknown',
+          accuracy: userLocation?.accuracy?.toString() || 'unknown'
+        }
       });
       
       setSuccess('Zapažanje uspješno spremljeno! Preusmjeravanje...');
@@ -163,9 +208,8 @@ export default function PlantCapture() {
       
       // Reset form
       setImage(null);
-      setName('');
-      setDescription('');
-      startCamera();
+      setSelectedPlant(null);
+      
     } catch (err) {
       console.error('Greška pri spremanju zapažanja:', err);
       let errorMessage = 'Došlo je do greške pri spremanju. ';
@@ -184,103 +228,109 @@ export default function PlantCapture() {
     }
   };
 
+  if (!selectedPlant) {
+    return (
+      <div className="fixed inset-0 bg-white p-4 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {plantsData.map((plant) => (
+              <div 
+                key={plant.id}
+                onClick={() => setSelectedPlant(plant)}
+                className="cursor-pointer bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="h-32 mb-2 overflow-hidden rounded">
+                  <img 
+                    src={plant.image} 
+                    alt={plant.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-medium text-sm text-center">{plant.name}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dodaj novo zapažanje biljke</h1>
-        <Link 
-          to="/zapazanja"
-          className="text-green-600 hover:text-green-800 font-medium flex items-center"
+    <div className="fixed inset-0 bg-white">
+      {/* Simple header with back button */}
+      <div className="p-4">
+        <button 
+          onClick={() => setSelectedPlant(null)}
+          className="text-gray-600 hover:text-gray-800"
         >
-          <List className="mr-1 h-4 w-4" />
-          Pregledaj sva zapažanja
-        </Link>
+          <X className="h-6 w-6" />
+        </button>
       </div>
       
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-      {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
+      {error && (
+        <div className="bg-red-100 text-red-700 px-4 py-3">
+          {error}
+        </div>
+      )}
       
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-2">Fotografija biljke</h2>
-          
+      <form onSubmit={handleSubmit} className="h-[calc(100%-4rem)] flex flex-col">
+        <div className="flex-1 flex flex-col">
           {!image ? (
-            <div className="relative bg-gray-100 rounded-lg overflow-hidden" style={{ height: '300px' }}>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-                <button
-                  type="button"
-                  onClick={captureImage}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg"
-                  disabled={!cameraActive}
-                >
-                  Uslikaj
-                </button>
-              </div>
+            <div className="flex-1 bg-gray-100 flex flex-col">
+              {cameraActive ? (
+                <div className="flex-1 relative">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={captureImage}
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-full shadow-lg"
+                    >
+                      Uslikaj
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-gray-500">Učitavam kameru...</p>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="relative">
-              <img 
-                src={image} 
-                alt="Captured plant" 
-                className="w-full h-64 object-cover rounded-lg"
-              />
-              <div className="mt-2 flex space-x-2">
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 bg-gray-100 flex items-center justify-center overflow-hidden">
+                <img 
+                  src={image} 
+                  alt="Snimljena biljka" 
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+              <div className="p-4 flex space-x-4">
                 <button
                   type="button"
                   onClick={retakePhoto}
-                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                  className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded"
                 >
                   Ponovno uslikaj
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded"
+                >
+                  {isLoading ? 'Spremanje...' : 'Spremi'}
                 </button>
               </div>
             </div>
           )}
         </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2" htmlFor="name">
-              Ime biljke (opcionalno)
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder="Unesite ime biljke"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2" htmlFor="description">
-              Opis (opcionalno)
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2 border rounded"
-              rows="3"
-              placeholder="Dodatne napomene o biljci..."
-            />
-          </div>
-          
-          <button
-            type="submit"
-            disabled={isLoading || !image}
-            className={`w-full py-3 px-4 rounded font-bold text-white ${isLoading || !image ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}
-          >
-            {isLoading ? 'Spremanje...' : 'Spremi zapažanje'}
-          </button>
-        </div>
+
       </form>
     </div>
   );

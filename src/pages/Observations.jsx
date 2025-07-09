@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getPlantObservations, storageSasToken } from '../services/cosmosDb';
+import { getPlantObservations, storageSasToken } from '../services/storageService';
 import { MapPin, Calendar, Leaf, Clock } from 'lucide-react';
 
 export default function Observations() {
