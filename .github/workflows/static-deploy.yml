@@ -32,3 +32,5 @@ jobs:
           action: 'upload'
           app_location: '/'
           output_location: 'dist'
+          skip_app_build: false
+          skip_api_build: true
