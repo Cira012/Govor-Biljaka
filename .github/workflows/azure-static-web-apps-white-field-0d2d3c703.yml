@@ -34,34 +34,4 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Build
-        run: npm run build
-        
-      - name: List build output
-        run: ls -R dist
-        
-      - name: Debug - Show environment
-        run: |
-          echo "GITHUB_REF: $GITHUB_REF"
-          echo "GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
-          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          ls -la $GITHUB_WORKSPACE
-          
-      - name: Verify build output
-        run: |
-          ls -la dist/
-          
-      - name: Deploy to Azure Static Web Apps
-        id: deploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: 'upload'
-          app_location: '/'  # Location of your source code
-          output_location: 'dist'  # Location of the build output
-          skip_app_build: true  # We're building manually above
-          verbose: true
-          deployment_environment: 'Production'
+      - name: Build and De
