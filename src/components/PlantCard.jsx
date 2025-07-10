@@ -40,14 +40,22 @@ const PlantCard = ({ plant, index }) => {
         `}</style>
         
         {/* Image container - taking up more space */}
-        <div className="relative w-full pt-[80%] bg-gradient-to-br from-emerald-50 to-amber-50">
-          <div className="absolute inset-0 p-1">
+        <div className="relative w-full h-48 bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden">
+          <div className="absolute inset-0 p-2 flex items-center justify-center">
             <Link to={`/vrste/${plant.id}`} className="block w-full h-full">
-              <ImageWithFallback
-                src={plant.image}
-                alt={plant.name}
-                className="w-full h-full object-contain transition-all duration-500 group-hover:scale-105 p-2"
-              />
+              <div className="w-full h-full flex items-center justify-center">
+                <ImageWithFallback
+                  src={plant.image}
+                  alt={plant.name}
+                  className="max-w-full max-h-full object-contain transition-all duration-500 group-hover:scale-105"
+                  style={{
+                    width: 'auto',
+                    height: 'auto',
+                    maxHeight: '100%',
+                    maxWidth: '100%'
+                  }}
+                />
+              </div>
             </Link>
             
             {/* Camera button for capturing photos */}
