@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="leaf-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M0 10 Q5 5 10 10 T20 10" fill="none" stroke="#e5e7eb" stroke-width="1" />
+      <path d="M10 0 Q15 5 10 10 T10 20" fill="none" stroke="#e5e7eb" stroke-width="1" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#leaf-pattern)" opacity="0.2" />
+</svg>
