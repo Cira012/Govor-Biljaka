@@ -185,30 +185,46 @@ export default function PlantCapture() {
         ia[i] = byteString.charCodeAt(i);
       }
       
+      // Create metadata object
+      const metadata = {
+        plantId: selectedPlant.id.toString(),
+        plantName: selectedPlant.name,
+        scientificName: selectedPlant.scientificName,
+        timestamp: date.toISOString(),
+        date: date.toISOString().split('T')[0],
+        location: userLocation ? `${userLocation.lat},${userLocation.lng}` : 'unknown',
+        accuracy: userLocation?.accuracy?.toString() || 'unknown'
+      };
+
+      console.log('Uploading image with metadata:', metadata);
+      
       // Upload the image to the plant's folder
       const imageBlobClient = containerClient.getBlockBlobClient(imagePath);
-      await imageBlobClient.upload(ab, ab.byteLength, {
-        blobHTTPHeaders: { blobContentType: mimeString },
-        metadata: {
-          plantId: selectedPlant.id.toString(),
-          plantName: selectedPlant.name,
-          scientificName: selectedPlant.scientificName,
-          timestamp: date.toISOString(),
-          location: userLocation ? `${userLocation.lat},${userLocation.lng}` : 'unknown',
-          accuracy: userLocation?.accuracy?.toString() || 'unknown'
-        }
+      const uploadResponse = await imageBlobClient.upload(ab, ab.byteLength, {
+        blobHTTPHeaders: { 
+          blobContentType: mimeString,
+          blobContentMD5: undefined // Clear any existing MD5
+        },
+        metadata: metadata
       });
+
+      console.log('Upload response:', uploadResponse);
+      
+      // Verify metadata was set correctly
+      const properties = await imageBlobClient.getProperties();
+      console.log('Blob properties after upload:', properties);
+      console.log('Metadata after upload:', properties.metadata);
       
       setSuccess('Zapažanje uspješno spremljeno! Preusmjeravanje...');
+      
+      // Reset form
+      setImage(null);
+      setSelectedPlant(null);
       
       // Redirect to observations page after a short delay
       setTimeout(() => {
         navigate('/zapazanja');
       }, 1500);
-      
-      // Reset form
-      setImage(null);
-      setSelectedPlant(null);
       
     } catch (err) {
       console.error('Greška pri spremanju zapažanja:', err);
