@@ -36,7 +36,8 @@ const PlantCard = ({ plant, index }) => {
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '500px' // Increased minimum height to fit more of the image
+          minHeight: '500px',
+          position: 'relative'
         }}
       >
         <style jsx>{`
@@ -46,7 +47,7 @@ const PlantCard = ({ plant, index }) => {
         `}</style>
         
         {/* Image container with fixed aspect ratio and perfect centering */}
-        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl" style={{ height: '380px' }}>
+        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl" style={{ height: '400px' }}>
           <Link to={`/vrste/${plant.id}`} className="block w-full h-full group-hover:opacity-95 transition-opacity duration-300">
             <div className="absolute inset-0 flex items-center justify-center p-6">
               {/* Subtle background pattern */}
@@ -59,27 +60,27 @@ const PlantCard = ({ plant, index }) => {
               }} />
               
               {/* Plant image with perfect centering */}
-              <div className="relative w-full h-full flex items-center justify-center p-2">
-                <div className="relative w-full h-full flex items-center justify-center rounded-xl overflow-hidden">
+              <div className="relative w-full h-full flex items-center justify-center p-1">
+                <div className="relative w-full h-full flex items-center justify-center">
                   <ImageWithFallback
                     src={plant.image}
                     alt={plant.name}
-                    className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                     style={{
                       filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
                       objectFit: 'contain',
                       objectPosition: 'center',
                       willChange: 'transform',
                       imageRendering: 'crisp-edges',
-                      maxWidth: '95%',
-                      maxHeight: '95%',
+                      maxWidth: '100%',
+                      maxHeight: '100%',
                       width: 'auto',
                       height: 'auto',
                       margin: '0 auto',
                       display: 'block',
                       position: 'relative',
                       zIndex: 1,
-                      borderRadius: '0.75rem',
+                      borderRadius: '0.5rem',
                       border: '1px solid rgba(0,0,0,0.05)'
                     }}
                     onError={(e) => {
