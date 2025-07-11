@@ -24,19 +24,19 @@ const PlantCard = ({ plant, index }) => {
   return (
     <>
       <div 
-        className="group relative bg-white rounded-2xl shadow-sm overflow-visible transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col border-2 border-emerald-50 h-full"
+        className="group relative bg-white rounded-2xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col border-2 border-emerald-50 h-full"
         data-testid="plant-card"
         data-plant-id={plant.id}
         style={{
           opacity: 0,
           animation: `fadeIn 0.3s ease-out forwards ${index * 0.05}s`,
-          minHeight: '420px',  // Increased minimum height
-          height: '100%',      // Ensure full height
-          width: '100%',       // Full width of parent container
-          maxWidth: '320px',   // Slightly reduced max-width for better proportions
-          margin: '0 auto',    // Center the card
+          height: '100%',
+          width: '100%',
+          maxWidth: '320px',
+          margin: '0 auto',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          minHeight: '400px' // Ensure minimum height for content below image
         }}
       >
         <style jsx>{`
@@ -45,37 +45,40 @@ const PlantCard = ({ plant, index }) => {
           }
         `}</style>
         
-        {/* Image container with enhanced visual design */}
-        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-visible rounded-t-2xl" style={{ height: '300px' }}>
+        {/* Image container with fixed aspect ratio and perfect centering */}
+        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl" style={{ aspectRatio: '1/1' }}>
           <Link to={`/vrste/${plant.id}`} className="block w-full h-full group-hover:opacity-95 transition-opacity duration-300">
-            <div className="relative w-full h-full flex items-center justify-center p-4">
+            <div className="absolute inset-0 flex items-center justify-center p-6">
               {/* Subtle background pattern */}
               <div className="absolute inset-0 opacity-10" style={{
                 backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29-22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-29c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%233d7c40\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
                 backgroundSize: '30px 30px',
                 backgroundPosition: 'center',
-                backgroundRepeat: 'repeat'
-              }}></div>
+                backgroundRepeat: 'repeat',
+                pointerEvents: 'none'
+              }} />
               
-              {/* Plant image */}
+              {/* Plant image with perfect centering */}
               <div className="relative w-full h-full flex items-center justify-center">
-                <div className="relative w-full h-full flex items-center justify-center p-2">
+                <div className="relative w-full h-full flex items-center justify-center">
                   <ImageWithFallback
                     src={plant.image}
                     alt={plant.name}
-                    className="h-full w-auto max-w-full object-contain transition-all duration-300 group-hover:scale-105"
+                    className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
                     style={{
                       filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
                       objectFit: 'contain',
+                      objectPosition: 'center',
                       willChange: 'transform',
                       imageRendering: 'crisp-edges',
                       maxWidth: '100%',
                       maxHeight: '100%',
                       width: 'auto',
                       height: 'auto',
-                      margin: '0 auto',
                       display: 'block',
-                      objectPosition: 'center bottom'
+                      margin: '0 auto',
+                      position: 'relative',
+                      zIndex: 1
                     }}
                     onError={(e) => {
                       console.error('Error loading image:', plant.image, e);
