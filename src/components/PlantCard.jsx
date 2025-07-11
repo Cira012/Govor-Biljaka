@@ -59,8 +59,8 @@ const PlantCard = ({ plant, index }) => {
               }} />
               
               {/* Plant image with perfect centering */}
-              <div className="relative w-full h-full flex items-center justify-center p-4">
-                <div className="relative w-full h-full flex items-center justify-center rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
+              <div className="relative w-full h-full flex items-center justify-center p-2">
+                <div className="relative w-full h-full flex items-center justify-center rounded-xl overflow-hidden">
                   <ImageWithFallback
                     src={plant.image}
                     alt={plant.name}
@@ -71,8 +71,8 @@ const PlantCard = ({ plant, index }) => {
                       objectPosition: 'center',
                       willChange: 'transform',
                       imageRendering: 'crisp-edges',
-                      maxWidth: '100%',
-                      maxHeight: '100%',
+                      maxWidth: '95%',
+                      maxHeight: '95%',
                       width: 'auto',
                       height: 'auto',
                       margin: '0 auto',
