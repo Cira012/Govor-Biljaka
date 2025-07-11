@@ -119,7 +119,6 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/zbirka" element={<Collection />} />
         <Route path="/vrste/:id" element={<PlantDetail />} />
-        <Route path="/snimi" element={<PlantCapture />} />
         <Route path="/zapazanja" element={<Observations />} />
       </Routes>
     </div>

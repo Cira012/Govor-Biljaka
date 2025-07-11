@@ -57,11 +57,11 @@ export default function Observations() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Moja zapažanja</h1>
         <Link 
-          to="/snimi"
+          to="/zbirka"
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
         >
           <Leaf className="mr-2 h-4 w-4" />
-          Novi unos
+          Dodaj novo zapažanje
         </Link>
       </div>
 
@@ -71,7 +71,7 @@ export default function Observations() {
           <h2 className="text-xl font-semibold mb-2">Nema zapažanja</h2>
           <p className="text-gray-600 mb-4">Još niste zabilježili nijedno zapažanje.</p>
           <Link 
-            to="/snimi"
+            to="/zbirka"
             className="inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg"
           >
             Dodaj prvo zapažanje
