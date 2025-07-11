@@ -36,7 +36,7 @@ const PlantCard = ({ plant, index }) => {
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '400px' // Ensure minimum height for content below image
+          minHeight: '500px' // Increased minimum height to fit more of the image
         }}
       >
         <style jsx>{`
@@ -46,7 +46,7 @@ const PlantCard = ({ plant, index }) => {
         `}</style>
         
         {/* Image container with fixed aspect ratio and perfect centering */}
-        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl" style={{ aspectRatio: '1/1' }}>
+        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl" style={{ height: '380px' }}>
           <Link to={`/vrste/${plant.id}`} className="block w-full h-full group-hover:opacity-95 transition-opacity duration-300">
             <div className="absolute inset-0 flex items-center justify-center p-6">
               {/* Subtle background pattern */}
