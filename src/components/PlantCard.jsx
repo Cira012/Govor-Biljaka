@@ -59,8 +59,8 @@ const PlantCard = ({ plant, index }) => {
               }} />
               
               {/* Plant image with perfect centering */}
-              <div className="relative w-full h-full flex items-center justify-center">
-                <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center p-4">
+                <div className="relative w-full h-full flex items-center justify-center rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
                   <ImageWithFallback
                     src={plant.image}
                     alt={plant.name}
@@ -75,10 +75,12 @@ const PlantCard = ({ plant, index }) => {
                       maxHeight: '100%',
                       width: 'auto',
                       height: 'auto',
-                      display: 'block',
                       margin: '0 auto',
+                      display: 'block',
                       position: 'relative',
-                      zIndex: 1
+                      zIndex: 1,
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(0,0,0,0.05)'
                     }}
                     onError={(e) => {
                       console.error('Error loading image:', plant.image, e);
