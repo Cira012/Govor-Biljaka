@@ -32,11 +32,7 @@ const PlantCard = ({ plant, index }) => {
           animation: `fadeIn 0.3s ease-out forwards ${index * 0.05}s`,
         }}
       >
-        <style jsx>{`
-          @keyframes fadeIn {
-            to { opacity: 1; }
-          }
-        `}</style>
+        <style jsx>{"\n          @keyframes fadeIn {\n            to { opacity: 1; }\n          }\n        "}</style>
         
         {/* Image container with enhanced visual design */}
         <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl">
@@ -109,12 +105,14 @@ const PlantCard = ({ plant, index }) => {
         </div>
       </div>
 
-      <PhotoCaptureModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        plant={plant}
-        onUploadSuccess={handleUploadSuccess}
-      />
+      {isModalOpen && (
+        <PhotoCaptureModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          plant={plant}
+          onUploadSuccess={handleUploadSuccess}
+        />
+      )}
     </>
   );
 };
