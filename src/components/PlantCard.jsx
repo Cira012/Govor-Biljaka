@@ -24,15 +24,16 @@ const PlantCard = ({ plant, index }) => {
   return (
     <>
       <div 
-        className="group relative bg-white rounded-2xl shadow-sm overflow-visible transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col border-2 border-emerald-50"
+        className="group relative bg-white rounded-2xl shadow-sm overflow-visible transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col border-2 border-emerald-50 h-full"
         data-testid="plant-card"
         data-plant-id={plant.id}
         style={{
           opacity: 0,
           animation: `fadeIn 0.3s ease-out forwards ${index * 0.05}s`,
-          minHeight: '400px',  // Increased minimum height
+          minHeight: '420px',  // Increased minimum height
+          height: '100%',      // Ensure full height
           width: '100%',       // Full width of parent container
-          maxWidth: '380px',   // Increased max-width for larger cards
+          maxWidth: '320px',   // Slightly reduced max-width for better proportions
           margin: '0 auto',    // Center the card
           display: 'flex',
           flexDirection: 'column'
@@ -45,9 +46,9 @@ const PlantCard = ({ plant, index }) => {
         `}</style>
         
         {/* Image container with enhanced visual design */}
-        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-visible rounded-t-2xl flex-grow flex flex-col" style={{ minHeight: '280px' }}>
-          <Link to={`/vrste/${plant.id}`} className="block w-full h-full group-hover:opacity-95 transition-opacity duration-300 flex-grow flex flex-col">
-            <div className="relative w-full flex-grow flex items-center justify-center p-4 md:p-6">
+        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-visible rounded-t-2xl" style={{ height: '300px' }}>
+          <Link to={`/vrste/${plant.id}`} className="block w-full h-full group-hover:opacity-95 transition-opacity duration-300">
+            <div className="relative w-full h-full flex items-center justify-center p-4">
               {/* Subtle background pattern */}
               <div className="absolute inset-0 opacity-10" style={{
                 backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29-22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-29c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%233d7c40\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
@@ -57,24 +58,23 @@ const PlantCard = ({ plant, index }) => {
               }}></div>
               
               {/* Plant image */}
-              <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: '220px' }}>
+              <div className="relative w-full h-full flex items-center justify-center">
                 <div className="relative w-full h-full flex items-center justify-center p-2">
                   <ImageWithFallback
                     src={plant.image}
                     alt={plant.name}
-                    className="h-auto w-auto max-h-[280px] max-w-full object-contain transition-all duration-300 group-hover:scale-105"
+                    className="h-full w-auto max-w-full object-contain transition-all duration-300 group-hover:scale-105"
                     style={{
                       filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
                       objectFit: 'contain',
                       willChange: 'transform',
                       imageRendering: 'crisp-edges',
                       maxWidth: '100%',
-                      height: 'auto',
-                      maxHeight: '280px',
+                      maxHeight: '100%',
                       width: 'auto',
+                      height: 'auto',
                       margin: '0 auto',
                       display: 'block',
-                      paddingBottom: '1.5rem',
                       objectPosition: 'center bottom'
                     }}
                     onError={(e) => {
@@ -103,13 +103,13 @@ const PlantCard = ({ plant, index }) => {
           )}
         </div>
         
-        <div className="p-5 flex-1 flex flex-col bg-white border-t border-emerald-100">
+        <div className="p-5 bg-white border-t border-emerald-100">
           <Link to={`/vrste/${plant.id}`} className="group-hover:text-emerald-700 transition-colors">
-            <h3 className="text-2xl font-bold text-gray-900 mb-1 line-clamp-1 font-serif">
+            <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-1 font-serif">
               {plant.name}
             </h3>
             {plant.scientificName && (
-              <p className="text-sm text-emerald-800 font-medium mb-3 italic">
+              <p className="text-sm text-emerald-800 font-medium mb-2 italic line-clamp-1">
                 {plant.scientificName}
               </p>
             )}
