@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Camera, Leaf } from 'lucide-react';
+import { MapPin, Clock, Camera } from 'lucide-react';
 import PropTypes from 'prop-types';
 import ImageWithFallback from './ImageWithFallback';
 import PhotoCaptureModal from './PhotoCaptureModal';
@@ -18,7 +18,6 @@ const PlantCard = ({ plant, index }) => {
   };
 
   const handleUploadSuccess = () => {
-    // You could add a toast notification here if desired
     console.log('Photo uploaded successfully!');
   };
 
@@ -39,48 +38,48 @@ const PlantCard = ({ plant, index }) => {
           }
         `}</style>
         
-        {/* Image container - taking up more space */}
-        <div className="relative w-full h-48 bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden">
-          <div className="absolute inset-0 p-2 flex items-center justify-center">
-            <Link to={`/vrste/${plant.id}`} className="block w-full h-full">
-              <div className="w-full h-full flex items-center justify-center">
-                <ImageWithFallback
-                  src={plant.image}
-                  alt={plant.name}
-                  className="max-w-full max-h-full object-contain transition-all duration-500 group-hover:scale-105"
-                  style={{
-                    width: 'auto',
-                    height: 'auto',
-                    maxHeight: '100%',
-                    maxWidth: '100%'
-                  }}
-                />
+        {/* Image container with enhanced visual design */}
+        <div className="relative w-full bg-gradient-to-br from-emerald-50 to-amber-50 overflow-hidden rounded-t-2xl">
+          <div className="aspect-w-1 aspect-h-1 w-full">
+            <Link to={`/vrste/${plant.id}`} className="block w-full h-full group-hover:opacity-95 transition-opacity duration-300">
+              <div className="w-full h-full flex items-center justify-center p-4 md:p-6">
+                <div className="relative w-full h-full max-h-56 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <ImageWithFallback
+                    src={plant.image}
+                    alt={plant.name}
+                    className="max-w-[90%] max-h-[90%] w-auto h-auto object-contain transition-all duration-300 group-hover:scale-110"
+                    style={{
+                      filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))',
+                      objectFit: 'contain',
+                      willChange: 'transform'
+                    }}
+                  />
+                </div>
               </div>
             </Link>
-            
-            {/* Camera button for capturing photos */}
-            <button
-              onClick={handleCaptureClick}
-              className="absolute bottom-3 right-3 bg-white/90 p-2.5 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300 hover:scale-110 hover:shadow-md"
-              aria-label="Snimi fotografiju"
-              title="Snimi fotografiju"
-            >
-              <Camera className="w-5 h-5 text-emerald-700" />
-            </button>
-            
-            {isFlowering && (
-              <span className="absolute top-3 left-3 bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center shadow-sm">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>
-                U cvetu
-              </span>
-            )}
           </div>
+          
+          <button
+            onClick={handleCaptureClick}
+            className="absolute bottom-4 right-4 bg-white/90 p-2.5 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 hover:shadow-md z-10 backdrop-blur-sm"
+            aria-label="Snimi fotografiju"
+            title="Snimi fotografiju"
+          >
+            <Camera className="w-5 h-5 text-emerald-700" />
+          </button>
+          
+          {isFlowering && (
+            <span className="absolute top-3 left-3 bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center shadow-sm backdrop-blur-sm">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+              U cvetu
+            </span>
+          )}
         </div>
         
-        {/* Card content */}
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="p-4 md:p-5 flex-1 flex flex-col bg-white">
           <Link to={`/vrste/${plant.id}`} className="group-hover:text-emerald-700 transition-colors">
-            <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-1">
+            <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-1 font-serif">
               {plant.name}
             </h3>
             {plant.scientificName && (
@@ -90,18 +89,18 @@ const PlantCard = ({ plant, index }) => {
             )}
           </Link>
           
-          <div className="mt-auto">
+          <div className="mt-auto space-y-2">
             {plant.floweringSeason && (
-              <div className="flex items-center text-sm text-gray-600 mb-2">
+              <div className="flex items-center text-sm text-gray-600">
                 <Clock className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0" />
-                <span>{plant.floweringSeason}</span>
+                <span className="line-clamp-1">{plant.floweringSeason}</span>
               </div>
             )}
             
             {hasLocations && lastSeen && (
-              <div className="flex items-center text-sm text-gray-600">
-                <MapPin className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0" />
-                <span className="line-clamp-1">
+              <div className="flex items-start text-sm text-gray-600">
+                <MapPin className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0 mt-0.5" />
+                <span className="line-clamp-2">
                   {plant.locations[0].location} • {lastSeen}
                 </span>
               </div>
@@ -110,46 +109,38 @@ const PlantCard = ({ plant, index }) => {
         </div>
       </div>
 
-      {/* Photo Capture Modal */}
-      {isModalOpen && (
-        <PhotoCaptureModal
-          plant={plant}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={handleUploadSuccess}
-        />
-      )}
+      <PhotoCaptureModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        plant={plant}
+        onUploadSuccess={handleUploadSuccess}
+      />
     </>
   );
 };
 
 // Helper functions
-function isFloweringNow(floweringSeason) {
+const isFloweringNow = (floweringSeason) => {
   if (!floweringSeason) return false;
-  
-  const currentMonth = new Date().getMonth() + 1; // 1-12
-  const monthNames = ["januar", "februar", "mart", "april", "maj", "jun", "jul", "avgust", "septembar", "oktobar", "novembar", "decembar"];
-  const currentMonthName = monthNames[currentMonth - 1].toLowerCase();
-  
-  return floweringSeason.toLowerCase().includes(currentMonthName.substring(0, 3));
-}
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  return floweringSeason.includes(month);
+};
 
-function getRelativeTime(dateString) {
-  if (!dateString) return null;
-  
+const getRelativeTime = (dateString) => {
+  if (!dateString) return 'Nikada viđeno';
   const date = new Date(dateString);
   const now = new Date();
-  const diffInMs = now - date;
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
-  if (diffInDays === 0) return 'danas';
-  if (diffInDays === 1) return 'juče';
-  if (diffInDays < 7) return `pre ${diffInDays} dana`;
-  if (diffInDays < 30) return `pre ${Math.floor(diffInDays / 7)} nedelje`;
-  if (diffInDays < 365) return `pre ${Math.floor(diffInDays / 30)} meseca`;
-  
-  const years = Math.floor(diffInDays / 365);
-  return `pre ${years} ${years === 1 ? 'godine' : 'godina'}`;
-}
+  if (diffDays === 0) return 'Danas';
+  if (diffDays === 1) return 'Juče';
+  if (diffDays < 7) return `Pre ${diffDays} dana`;
+  if (diffDays < 30) return `Pre ${Math.floor(diffDays / 7)} nedelje`;
+  if (diffDays < 365) return `Pre ${Math.floor(diffDays / 30)} meseci`;
+  return `Pre ${Math.floor(diffDays / 365)} godina`;
+};
 
 PlantCard.propTypes = {
   plant: PropTypes.shape({
@@ -157,11 +148,13 @@ PlantCard.propTypes = {
     name: PropTypes.string.isRequired,
     scientificName: PropTypes.string,
     image: PropTypes.string,
-    description: PropTypes.string,
-    locations: PropTypes.array,
-    floweringSeason: PropTypes.string,
+    floweringSeason: PropTypes.arrayOf(PropTypes.number),
+    locations: PropTypes.arrayOf(PropTypes.shape({
+      location: PropTypes.string,
+      date: PropTypes.string
+    }))
   }).isRequired,
-  index: PropTypes.number,
+  index: PropTypes.number
 };
 
 export default PlantCard;
